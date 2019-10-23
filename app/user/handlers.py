@@ -2,6 +2,7 @@ from aiohttp import web
 
 from app.db import users
 from app.user.models import User
+from app.order.models import Order
 from app.session.models import Session
 from app.session.middleware import login_required
 
@@ -53,16 +54,4 @@ class UserHandlers:
         async with app['db'].acquire() as conn:
             await Session.delete(user.session_key, conn=conn)
         return web.json_response({})
-
-    @login_required
-    async def orders(request):
-        """
-            история заказов для авторизованного пользователя
-        """
-        app = request.app
-        user = request['user']
-        async with app['db'].acquire() as conn:
-            user_orders = await User.orders(user, conn=conn)
-            return web.json_response({'orders': [ User.order_to_dict(o) for o in user_orders ]})
-
 

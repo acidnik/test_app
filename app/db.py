@@ -61,6 +61,7 @@ def sample_data(engine):
     conn = engine.connect()
     conn.execute(users.insert(), [
         {'login': 'user1', 'password': hash_password('test@pass'), 'email': 'test@example.com'},
+        {'login': 'user2', 'password': hash_password('test@pass2'), 'email': 'test2@example.com'},
     ])
     conn.execute(books.insert(), [
         # {'title': '', 'author': ''},
