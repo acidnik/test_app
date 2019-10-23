@@ -12,6 +12,11 @@ class UserHandlers:
         pass
 
     async def login(request):
+        """
+        логин
+        возвращает {'session': '...session key...'}
+        или 403 в случае ошибки авторизации
+        """
         app = request.app
         login = request.query.get('login')
         password = request.query.get('password')
@@ -35,15 +40,29 @@ class UserHandlers:
         async with app['db'].acquire() as conn:
             user = await User.get_by_id(user_id, conn=conn)
             if user:
-                return web.json_response({'user': user.to_dict()})
+                return web.json_response({'user': User.to_dict(user)})
             raise web.HTTPNotFound
 
     @login_required
     async def logout(request):
+        """
+            разлогин
+        """
         app = request.app
         user = request['user']
         async with app['db'].acquire() as conn:
             await Session.delete(user.session_key, conn=conn)
         return web.json_response({})
+
+    @login_required
+    async def orders(request):
+        """
+            история заказов для авторизованного пользователя
+        """
+        app = request.app
+        user = request['user']
+        async with app['db'].acquire() as conn:
+            user_orders = await User.orders(user, conn=conn)
+            return web.json_response({'orders': [ User.order_to_dict(o) for o in user_orders ]})
 
 

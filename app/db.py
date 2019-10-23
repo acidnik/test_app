@@ -1,7 +1,7 @@
 from sqlalchemy import (
     MetaData, Table, Column, ForeignKey,
     Integer, String, DateTime,
-    create_engine, MetaData,
+    create_engine, MetaData, UniqueConstraint
 )
 from sqlalchemy.sql.expression import text
 from app.settings import config
@@ -23,15 +23,37 @@ sessions = Table(
     'sessions', meta,
     Column('id', Integer, primary_key=True),
     Column('session_key', String(36), nullable=False, unique=True),
-    Column('user_id', Integer, ForeignKey('users.id')),
+    Column('user_id', Integer, ForeignKey('users.id'), nullable=False),
     Column('created_dt', DateTime, server_default=text('now()')),
 )
 
-DSN = "postgresql://{user}:{password}@{host}:{port}/{database}"
+books = Table(
+    'books', meta,
+    Column('id', Integer, primary_key=True),
+    Column('title', String(512), nullable=False),
+    Column('author', String(512), nullable=False),
+    UniqueConstraint('title', 'author'),
+)
+
+shops = Table(
+    'shops', meta,
+    Column('id', Integer, primary_key=True),
+    Column('name', String(512), nullable=False, unique=True),
+)
+
+orders = Table(
+    'orders', meta,
+    Column('id', Integer, primary_key=True),
+    Column('amount', Integer, nullable=False),
+    Column('user_id', Integer, ForeignKey('users.id'), nullable=False, index=True),
+    Column('shop_id', Integer, ForeignKey('shops.id'), nullable=False, index=True),
+    Column('book_id', Integer, ForeignKey('books.id'), nullable=False, index=True),
+    UniqueConstraint('user_id', 'book_id'),
+)
 
 def create_tables(engine):
     meta = MetaData(bind=engine)
-    tables=[users, sessions]
+    tables=[users, sessions, books, shops, orders]
     meta.drop_all(tables=tables)
     meta.create_all(bind=engine, tables=tables)
 
@@ -40,9 +62,24 @@ def sample_data(engine):
     conn.execute(users.insert(), [
         {'login': 'user1', 'password': hash_password('test@pass'), 'email': 'test@example.com'},
     ])
+    conn.execute(books.insert(), [
+        # {'title': '', 'author': ''},
+        {'title': 'Москва-Петушки', 'author': 'Венедикт Ерофеев'},
+        {'title': 'Война и мир', 'author': 'Лев Толстой'},
+        {'title': 'Евгений Онегин', 'author': 'Александр Пушкин'},
+    ])
+    conn.execute(shops.insert(), [
+        {'name': 'Boson'},
+    ])
+    conn.execute(orders.insert(), [
+        {'amount': 1, 'user_id': 1, 'shop_id': 1, 'book_id': 1},
+        {'amount': 1, 'user_id': 1, 'shop_id': 1, 'book_id': 2},
+    ])
     conn.close()
 
 def init_db():
+    DSN = "postgresql://{user}:{password}@{host}:{port}/{database}"
+
     db_url = DSN.format(**config['pg'])
     engine = create_engine(db_url)
 

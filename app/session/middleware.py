@@ -2,6 +2,9 @@ from app.user.models import User
 from aiohttp import web
 
 def login_required(handler):
+    """
+        враппер для ручек, требующих авторизации
+    """
     async def inner(request):
         app = request.app
         session_key = request.headers.get('authorization')

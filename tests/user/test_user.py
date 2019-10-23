@@ -15,10 +15,10 @@ async def test_user_login(loop, test_cli):
     assert res.status == 200
 
 async def test_user_logout(loop, test_cli):
-    res = await test_cli.get('/api/v1/user/logout')
+    res = await test_cli.post('/api/v1/user/logout')
     assert res.status == 403
     
-    res = await test_cli.get('/api/v1/user/logout', headers={'Authorization': 'xxx'})
+    res = await test_cli.post('/api/v1/user/logout', headers={'Authorization': 'xxx'})
     assert res.status == 403
 
     res = await test_cli.get(f'/api/v1/user/login?login={TEST_USER}&password={TEST_PASS}')
@@ -27,10 +27,10 @@ async def test_user_logout(loop, test_cli):
     session_key = data['session']
     # session_key = ''
 
-    res = await test_cli.get('/api/v1/user/logout', headers={'Authorization': session_key})
+    res = await test_cli.post('/api/v1/user/logout', headers={'Authorization': session_key})
     assert res.status == 200
     
-    res = await test_cli.get('/api/v1/user/logout', headers={'Authorization': session_key})
+    res = await test_cli.post('/api/v1/user/logout', headers={'Authorization': session_key})
     assert res.status == 403
 
 
@@ -43,6 +43,17 @@ async def test_user_get(loop, test_cli, session):
     
     res = await test_cli.get('/api/v1/user/1', headers=session)
     assert res.status == 200
-    data = await res.json()
+    data = (await res.json())['user']
     assert data['email'] is not None
-    assert 0
+
+async def test_user_orders(loop, test_cli, session):
+    res = await test_cli.get('/api/v1/user/orders')
+    assert res.status == 403
+
+    res = await test_cli.get('/api/v1/user/orders', headers=session)
+    assert res.status == 200
+
+    data = (await res.json())['orders']
+    assert len(data) == 2
+
+
