@@ -1,0 +1,8 @@
+pg:
+  database: db
+  user: postgres
+  password: dbpass
+  host: pg
+  port: 5432
+  minsize: 1
+  maxsize: 5

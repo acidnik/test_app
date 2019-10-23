@@ -1,0 +1,7 @@
+aiohttp
+aiopg[sa]
+sqlalchemy
+pyyaml
+pgcli
+pytest
+pytest-aiohttp

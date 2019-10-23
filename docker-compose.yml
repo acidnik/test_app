@@ -1,0 +1,35 @@
+version: "2.1"
+services:
+    api:
+        build:
+          context: .
+          dockerfile: Dockerfile
+        ports:
+            - "8000:8000"
+        volumes:
+            - ".:/opt/app"
+        command: sh -c 'sleep 2; python3 init_db.py; python3 run.py'
+        depends_on:
+            - pg
+        environment:
+            - DATABASE_URL=postgres://postgres:dbpass@pg/db
+        networks:
+          - custom
+    pg:
+        image: postgres:9.6-alpine
+        environment:
+            - POSTGRES_PASSWORD=dbpass
+            - POSTGRES_DB=db
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 2s
+            timeout: 1s
+            retries: 10
+        ports:
+          - "5432"
+        networks:
+          - custom
+
+networks:
+    custom:
+        driver: bridge
