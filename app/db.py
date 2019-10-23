@@ -19,14 +19,6 @@ users = Table(
     Column('created_dt', DateTime, server_default=text('now()')),
 )
 
-sessions = Table(
-    'sessions', meta,
-    Column('id', Integer, primary_key=True),
-    Column('session_key', String(36), nullable=False, unique=True),
-    Column('user_id', Integer, ForeignKey('users.id'), nullable=False),
-    Column('created_dt', DateTime, server_default=text('now()')),
-)
-
 books = Table(
     'books', meta,
     Column('id', Integer, primary_key=True),
@@ -53,7 +45,7 @@ orders = Table(
 
 def create_tables(engine):
     meta = MetaData(bind=engine)
-    tables=[users, sessions, books, shops, orders]
+    tables=[users, books, shops, orders]
     meta.drop_all(tables=tables)
     meta.create_all(bind=engine, tables=tables)
 

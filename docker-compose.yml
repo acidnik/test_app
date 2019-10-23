@@ -11,12 +11,14 @@ services:
         command: sh -c 'sleep 2; python3 init_db.py; python3 run.py'
         depends_on:
             - pg
+            - redis
         environment:
             - DATABASE_URL=postgres://postgres:dbpass@pg/db
+            - PYTHONDONTWRITEBYTECODE=1
         networks:
           - custom
     pg:
-        image: postgres:9.6-alpine
+        image: postgres:11.0-alpine
         environment:
             - POSTGRES_PASSWORD=dbpass
             - POSTGRES_DB=db
@@ -29,6 +31,14 @@ services:
           - "5432"
         networks:
           - custom
+
+    redis:
+        image: redis:5.0-alpine
+        ports:
+          - "6379"
+        networks:
+          - custom
+
 
 networks:
     custom:

@@ -1,4 +1,4 @@
-from app.db import users, sessions, books, shops, orders
+from app.db import users, books, shops, orders
 from app.user.utils import hash_password
 from app.session.models import Session
 from sqlalchemy.sql import select, and_
@@ -6,11 +6,11 @@ import logging
 
 class User:
     @classmethod
-    async def auth(cls, login: str, password: str, conn):
+    async def auth(cls, login: str, password: str, conn, redis):
         cursor = await conn.execute(select([users]).where(and_(users.c.login == login, users.c.password == hash_password(password))))
         user = await cursor.fetchone()
         if user:
-            session = await Session.create(user, conn=conn)
+            session = await Session.create(user, redis=redis)
             return session
 
         return None

@@ -1,14 +1,22 @@
-from app.db import sessions
 import uuid
 
 class Session:
     @classmethod
-    async def create(cls, user, conn):
+    async def create(cls, user, redis):
         session_key = str(uuid.uuid4())
-        await conn.execute(sessions.insert().values([{'user_id': user['id'], 'session_key': session_key }]))
+        await redis.set(session_key, str(user['id']))
         return session_key
 
     @classmethod
-    async def delete(cls, session_key, conn):
-        await conn.execute(sessions.delete().where(sessions.c.session_key == session_key))
+    async def delete(cls, session_key, redis):
+        await redis.delete([session_key])
+
+    @classmethod
+    async def get(cls, session_key, redis):
+        res = await redis.get(session_key)
+        if res:
+            return int(res)
+        return None
+
+
 

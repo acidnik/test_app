@@ -1,4 +1,4 @@
-from app.db import users, sessions, books, shops, orders
+from app.db import users, books, shops, orders
 from sqlalchemy.sql import select, and_
 
 class Order:
@@ -27,3 +27,11 @@ class Order:
         )
         rows = await cursor.fetchall()
         return rows
+
+    @classmethod
+    async def place_orders(cls, user_id, book_id, shop_id, amount, conn):
+        cur = await conn.execute(orders.insert(returning=[orders.c.id]), [
+            {'user_id': user_id, 'book_id': book_id, 'shop_id': shop_id, 'amount': amount}
+        ])
+        res = await curr.fetchone()
+        return res['id']

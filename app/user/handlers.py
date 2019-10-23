@@ -25,7 +25,7 @@ class UserHandlers:
         if not login or not password:
             raise web.HTTPForbidden
         async with app['db'].acquire() as conn:
-            session = await User.auth(login, password, conn=conn)
+            session = await User.auth(login, password, conn=conn, redis=app['redis'])
         if session:
             return web.json_response({'session': session})
         raise web.HTTPForbidden
@@ -52,6 +52,6 @@ class UserHandlers:
         app = request.app
         user = request['user']
         async with app['db'].acquire() as conn:
-            await Session.delete(user.session_key, conn=conn)
+            await Session.delete(request['session'], redis=app['redis'])
         return web.json_response({})
 
