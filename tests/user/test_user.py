@@ -1,5 +1,4 @@
 import pytest
-from app.application import create_app
 
 TEST_USER = 'user1'
 TEST_PASS = 'test@pass'
@@ -25,7 +24,6 @@ async def test_user_logout(loop, test_cli):
     assert res.status == 200
     data = await res.json()
     session_key = data['session']
-    # session_key = ''
 
     res = await test_cli.post('/api/v1/user/logout', headers={'Authorization': session_key})
     assert res.status == 200

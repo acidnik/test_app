@@ -40,7 +40,7 @@ orders = Table(
     Column('user_id', Integer, ForeignKey('users.id'), nullable=False, index=True),
     Column('shop_id', Integer, ForeignKey('shops.id'), nullable=False, index=True),
     Column('book_id', Integer, ForeignKey('books.id'), nullable=False, index=True),
-    UniqueConstraint('user_id', 'book_id'),
+    UniqueConstraint('user_id', 'book_id', 'shop_id'),
 )
 
 def create_tables(engine):

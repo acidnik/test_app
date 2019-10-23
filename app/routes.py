@@ -13,5 +13,6 @@ def add_routes(router):
         web.get('/api/v1/user/{user_id:\d+}', user.get),
 
         web.get('/api/v1/orders', order.orders),
+        web.post('/api/v1/orders', order.place_orders),
     ])
 
