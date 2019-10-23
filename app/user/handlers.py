@@ -25,8 +25,8 @@ async def login(request):
 async def logout(request):
     app = request.app
     user = request['user']
-    # async with app['db'].acquire() as conn:
-        # await Session.delete(user.session_key, conn=conn)
-        # pass
+    async with app['db'].acquire() as conn:
+        await Session.delete(user.session_key, conn=conn)
+    return web.json_response({})
 
 

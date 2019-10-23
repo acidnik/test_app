@@ -29,6 +29,9 @@ async def test_user_logout(loop, test_cli):
 
     res = await test_cli.get('/api/v1/user/logout', headers={'Authorization': session_key})
     assert res.status == 200
+    
+    res = await test_cli.get('/api/v1/user/logout', headers={'Authorization': session_key})
+    assert res.status == 403
 
 
 

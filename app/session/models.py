@@ -10,6 +10,5 @@ class Session:
 
     @classmethod
     async def delete(cls, session_key, conn):
-        pass
-        # await conn.execute(sessions.delete().where(sessions.c.session_key == session_key))
+        await conn.execute(sessions.delete().where(sessions.c.session_key == session_key))
 
