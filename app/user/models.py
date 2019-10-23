@@ -9,20 +9,36 @@ class User:
         self.user_id = kwargs['user_id']
         self.login = kwargs['login']
         self.password = kwargs['password']
-        self.session_key = kwargs['session_key']
+        self.session_key = kwargs.get('session_key')
+        self.email = kwargs['email']
 
     @classmethod
     async def auth(cls, login: str, password: str, conn):
         cursor = await conn.execute(select([users]).where(and_(users.c.login == login, users.c.password == hash_password(password))))
         user = await cursor.fetchone()
         if user:
-            logging.info(f"GOT {dict(user)}")
             session = await Session.create(user, conn=conn)
             return session
-        else:
-            logging.info(f"NONE for {login} / {password}")
 
         return None
+
+    @classmethod
+    async def get_by_id(cls, user_id: int, conn):
+        cursor = await conn.execute(select([users]).where(users.c.id == user_id))
+        user = await cursor.fetchone()
+        if not user:
+            return None
+        user = dict(user)
+        user['user_id'] = user['id']
+        # return None
+        return cls(**user)
+
+    def to_dict(self):
+        return {
+            'user_id': self.user_id,
+            'login': self.login,
+            'email': self.email,
+        }
 
     @classmethod
     async def get_by_session_key(cls, session_key: str, conn):

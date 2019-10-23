@@ -34,4 +34,15 @@ async def test_user_logout(loop, test_cli):
     assert res.status == 403
 
 
-
+async def test_user_get(loop, test_cli, session):
+    res = await test_cli.get('/api/v1/user/42')
+    assert res.status == 403
+    
+    res = await test_cli.get('/api/v1/user/42', headers=session)
+    assert res.status == 404
+    
+    res = await test_cli.get('/api/v1/user/1', headers=session)
+    assert res.status == 200
+    data = await res.json()
+    assert data['email'] is not None
+    assert 0

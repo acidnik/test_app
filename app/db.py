@@ -15,6 +15,7 @@ users = Table(
     Column('id', Integer, primary_key=True),
     Column('login', String(200), nullable=False, unique=True),
     Column('password', String(40), nullable=False),
+    Column('email', String(200), nullable=False),
     Column('created_dt', DateTime, server_default=text('now()')),
 )
 
@@ -37,7 +38,7 @@ def create_tables(engine):
 def sample_data(engine):
     conn = engine.connect()
     conn.execute(users.insert(), [
-        {'login': 'user1', 'password': hash_password('test@pass')},
+        {'login': 'user1', 'password': hash_password('test@pass'), 'email': 'test@example.com'},
     ])
     conn.close()
 

@@ -1,9 +1,8 @@
 from app.user.models import User
 from aiohttp import web
 
-def login_required(f):
-    # @web.middleware
-    async def inner(request, *args, **kwargs):
+def login_required(handler):
+    async def inner(request):
         app = request.app
         session_key = request.headers.get('authorization')
         if not session_key:
@@ -15,6 +14,6 @@ def login_required(f):
             raise web.HTTPForbidden
 
         request['user'] = user
-        return await f(request, *args, **kwargs)
+        return await handler(request)
     return inner
     
