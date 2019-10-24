@@ -21,7 +21,6 @@ class UserHandlers:
         app = request.app
         login = request.query.get('login')
         password = request.query.get('password')
-        logging.info(f"{login} {password} {request.query}")
         if not login or not password:
             raise web.HTTPForbidden
         async with app['db'].acquire() as conn:

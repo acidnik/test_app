@@ -33,6 +33,15 @@ shops = Table(
     Column('name', String(512), nullable=False, unique=True),
 )
 
+# связка магазин-книга
+shop_books = Table(
+    'shop_books', meta,
+    Column('id', Integer, primary_key=True),
+    Column('shop_id', Integer, ForeignKey('shops.id'), nullable=False, index=True),
+    Column('book_id', Integer, ForeignKey('books.id'), nullable=False, index=True),
+    UniqueConstraint('book_id', 'shop_id'),
+)
+
 orders = Table(
     'orders', meta,
     Column('id', Integer, primary_key=True),
@@ -40,12 +49,13 @@ orders = Table(
     Column('user_id', Integer, ForeignKey('users.id'), nullable=False, index=True),
     Column('shop_id', Integer, ForeignKey('shops.id'), nullable=False, index=True),
     Column('book_id', Integer, ForeignKey('books.id'), nullable=False, index=True),
+    Column('created_dt', DateTime, server_default=text('now()')),
     UniqueConstraint('user_id', 'book_id', 'shop_id'),
 )
 
 def create_tables(engine):
     meta = MetaData(bind=engine)
-    tables=[users, books, shops, orders]
+    tables=[users, books, shops, orders, shop_books]
     meta.drop_all(tables=tables)
     meta.create_all(bind=engine, tables=tables)
 
@@ -67,6 +77,11 @@ def sample_data(engine):
     conn.execute(orders.insert(), [
         {'amount': 1, 'user_id': 1, 'shop_id': 1, 'book_id': 1},
         {'amount': 1, 'user_id': 1, 'shop_id': 1, 'book_id': 2},
+    ])
+    conn.execute(shop_books.insert(), [
+        {'book_id': 1, 'shop_id': 1}, 
+        {'book_id': 2, 'shop_id': 1}, 
+        {'book_id': 3, 'shop_id': 1}, 
     ])
     conn.close()
 
