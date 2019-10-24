@@ -15,8 +15,6 @@ services:
         environment:
             - DATABASE_URL=postgres://postgres:dbpass@pg/db
             - PYTHONDONTWRITEBYTECODE=1
-        networks:
-          - custom
     pg:
         image: postgres:11.0-alpine
         environment:
@@ -29,17 +27,8 @@ services:
             retries: 10
         ports:
           - "5432"
-        networks:
-          - custom
 
     redis:
         image: redis:5.0-alpine
         ports:
           - "6379"
-        networks:
-          - custom
-
-
-networks:
-    custom:
-        driver: bridge
